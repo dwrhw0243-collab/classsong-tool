@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>がっきゅうのうたをつくろう</title>
+    <title>歌詞キーワード・セレクター</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -32,6 +32,7 @@
         .word-card:hover {
             transform: scale(1.05);
             background-color: #fdf2f8;
+            border-color: #f472b6;
         }
 
         @keyframes fadeIn {
@@ -81,9 +82,9 @@
 
             <!-- 中央：言葉の表示エリア -->
             <div class="lg:col-span-2">
-                <div class="bg-white rounded-3xl p-6 shadow-sm min-h-[400px] border-4 border-sky-100 relative">
+                <div class="bg-white rounded-3xl p-6 shadow-sm min-h-[450px] border-4 border-sky-100 relative">
                     <h2 id="current-category-title" class="text-2xl font-bold text-pink-500 mb-6 text-center">カテゴリをえらんでね</h2>
-                    <div id="words-display" class="flex flex-wrap gap-3 justify-center">
+                    <div id="words-display" class="flex flex-wrap gap-3 justify-center overflow-y-auto max-h-[500px] p-2">
                         <div class="text-gray-300 text-center mt-20">
                             <p class="text-5xl mb-4">✨</p>
                             <p>ひだりのボタンをおすと<br>ことばがでてくるよ</p>
@@ -95,13 +96,13 @@
                 <div class="mt-8 bg-pink-50 rounded-3xl p-6 border-4 border-dashed border-pink-200">
                     <div class="flex justify-between items-center mb-4">
                         <h2 class="text-xl font-bold text-pink-600">🌟 えらんだことばリスト</h2>
-                        <button onclick="clearSelected()" class="text-xs bg-white px-3 py-1 rounded-full text-pink-400 hover:bg-pink-100 transition shadow-sm">ぜんぶけす</button>
+                        <button onclick="clearSelected()" class="text-xs bg-white px-3 py-1 rounded-full text-pink-400 hover:bg-pink-100 transition shadow-sm border border-pink-100">ぜんぶけす</button>
                     </div>
                     <div id="selected-words-container" class="flex flex-wrap gap-2 min-h-[60px]">
                         <p id="empty-msg" class="text-pink-300 italic">まだえらばれていないよ</p>
                     </div>
                     <div class="mt-4 flex justify-end">
-                        <button onclick="copyToClipboard()" class="bg-sky-500 hover:bg-sky-600 text-white px-6 py-2 rounded-full font-bold shadow-lg transition">
+                        <button onclick="copyToClipboard()" class="bg-sky-500 hover:bg-sky-600 text-white px-6 py-2 rounded-full font-bold shadow-lg transition transform active:scale-95">
                             📋 リストをコピーする
                         </button>
                     </div>
@@ -117,8 +118,8 @@
 
     <script>
         const wordData = {
-            "きずな・なかま": ["なかま", "ともだち", "しんゆう", "あいぼう", "ちーむ", "かぞく", "となりにいるひと"],
-            "かお・うごき": ["えがお", "すまいる", "にっこり", "ばくしょう", "ほほえみ", "てとて", "つなぐ", "むすぶ", "あくしゅ", "はいたっち", "かたをくむ"],
+            "きずな・なかま": ["なかま", "ともだち", "しんゆう", "あいぼう", "ちーむ", "かぞく", "となりにいるひと", "クラスメイト"],
+            "かお・うごき": ["えがお", "すまいる", "にっこり", "ばくしょう", "ほほえみ", "てとて", "つなぐ", "むすぶ", "あくしゅ", "はいたっち", "かたをくむ", "ピース"],
             "つながり": ["ひとりじゃない", "みんないっしょ", "ささえあう", "みかた", "あいことば", "しんじる", "しんじあう", "きずな", "しんらい", "やくそく", "まっすぐ", "たすけあい", "きょうりょく", "こころのわ", "おたがいさま", "りれー", "ぱす"],
             "げんき・ぱわー": ["げんきいっぱい", "ぱわふる", "えねるぎー", "ちゃーじ", "ばくはつ", "みなぎる", "ゆうき", "やるき", "ほんき", "こんじょう", "じょうねつ", "ちゃれんじゃー", "わらいごえ", "わっはっは", "にこにこ", "にぎやか", "おまつり", "がやがや"],
             "ひかり・けしき": ["たいよう", "ひかり", "きらきら", "まぶしい", "あおぞら", "にじ", "ひだまり", "ぜんりょく", "100ぱーせんと", "ぜんりょくとうきゅう", "だしきる", "はしりぬける", "わくわく", "どきどき", "たのしもう", "ぼうけん", "あそびば", "こうきしん"],
@@ -126,8 +127,11 @@
             "どりょく・へんか": ["ちゃれんじ", "あきらめない", "なんどでも", "りべんじ", "かべをこわす", "せいちょう", "のびのび", "ぐんぐん", "しんか", "つぼみ", "かいか", "みのり", "せくらべ", "かがやく", "いちばん", "おんりーわん", "しゅやく", "だいやもんど", "ひかるあせ"],
             "こせい・やさしさ": ["じぶんらしく", "ありのまま", "そのまま", "すなお", "じゆう", "ほこり", "じゅうにんといろ", "みんなちがってみんないい", "ぱずる", "まざりあう", "からふる", "いろどり", "やさしい", "ぬくもり", "おもいやり", "そっと", "つつむ", "よりそう"],
             "かんしゃ・とくべつ": ["ありがとう", "かんしゃ", "さんきゅう", "ことばのぷれぜんと", "おかえし", "いばしょ", "ほーむ", "たからもの", "ひみつきち", "だいにのいえ", "あんしん", "かえるばしょ"],
-            "がっこうのようす": ["きせつ", "はる", "なつ", "あき", "ふゆ", "ちゃいむ", "ろうか", "まどのそと", "こくばん", "つくえ", "かえりみち"],
-            "かっこいいことば": ["いっちだんけつ", "せっさたくま", "いちごいちえ", "せいせいどうどう", "ひゃっかりょうらん", "うぃー・あー・わん", "びー・ゆあせるふ", "どぅー・あわ・べすと", "ねばー・ぎぶ・あっぷ", "すてっぷ・ばい・すてっぷ", "とぅげざー"]
+            "きゅうしょく・じかん": ["きゅうしょく", "おひるごはん", "おかわり", "いただきます", "ごちそうさま", "おいしい", "みんなでもぐもぐ", "おべんとう", "やすみじかん", "ごのじょう", "そうじの時間"],
+            "きょうか・べんきょう": ["こくご", "さんすう", "りか", "しゃかい", "たいいく", "おんがく", "ずこう", "しょどう", "どくしょ", "テスト", "じっけん", "けいさん", "えんぴつ", "ふでばこ", "じしょ"],
+            "ぎょうじ・イベント": ["たいいくさい", "うんどうかい", "えんそく", "しゅうがくりょこう", "おんがくかい", "がっぴょうかい", "おたのしみかい", "たんじょうび", "にゅうがくしき", "そつぎょうしき"],
+            "がっこうのばしょ": ["きょうしつ", "こうてい", "たいいくかん", "としょしつ", "ろうか", "まどのそと", "こくばん", "つくえ", "いす", "げたばこ", "かえりみち", "つうがくろ", "あさのあいさつ"],
+            "かっこいいことば": ["いっちだんけつ", "せっさたくま", "いちごいちえ", "せいせいどうどう", "ひゃっかりょうらん", "うぃー・あー・わん", "びー・ゆあせるふ", "どぅー・あわ・べすと", "ねばー・ぎぶ・あっぷ", "すてップ・ばい・すてっぷ", "とぅげざー"]
         };
 
         const categoryContainer = document.getElementById('category-container');
@@ -140,7 +144,7 @@
 
         Object.keys(wordData).forEach(cat => {
             const btn = document.createElement('button');
-            btn.className = 'category-btn bg-white border-2 border-sky-200 text-sky-700 px-4 py-3 rounded-2xl font-bold hover:bg-sky-50 text-left flex justify-between items-center';
+            btn.className = 'category-btn bg-white border-2 border-sky-200 text-sky-700 px-4 py-3 rounded-2xl font-bold hover:bg-sky-50 text-left flex justify-between items-center text-sm md:text-base';
             btn.innerHTML = `<span>【${cat}】</span><span class="text-sky-300">▶</span>`;
             btn.onclick = () => showWords(cat);
             categoryContainer.appendChild(btn);
@@ -181,8 +185,8 @@
             selectedWordsContainer.innerHTML = '';
             selectedWords.forEach((word, index) => {
                 const tag = document.createElement('div');
-                tag.className = 'selected-word bg-white border-2 border-pink-300 text-pink-600 px-4 py-1 rounded-full flex items-center gap-2 shadow-sm font-bold';
-                tag.innerHTML = `${word} <button onclick="removeWord(${index})" class="text-pink-300 hover:text-pink-500 font-bold">×</button>`;
+                tag.className = 'selected-word bg-white border-2 border-pink-300 text-pink-600 px-4 py-1 rounded-full flex items-center gap-2 shadow-sm font-bold text-sm md:text-base';
+                tag.innerHTML = `${word} <button onclick="removeWord(${index})" class="text-pink-300 hover:text-pink-500 font-bold ml-1">×</button>`;
                 selectedWordsContainer.appendChild(tag);
             });
         }
@@ -198,7 +202,6 @@
             updateSelectedDisplay();
         };
 
-        // コピー機能
         window.copyToClipboard = async function() {
             if (selectedWords.length === 0) {
                 showToast("まだことばをえらんでいないよ！");
@@ -206,8 +209,7 @@
             }
             const text = selectedWords.join('、');
             
-            // GitHubなどHTTPS環境では navigator.clipboard が推奨される
-            if (navigator.clipboard) {
+            if (navigator.clipboard && window.isSecureContext) {
                 try {
                     await navigator.clipboard.writeText(text);
                     showToast("コピーしたよ！せんせいにみせてね。");
@@ -222,6 +224,9 @@
         function fallbackCopy(text) {
             const el = document.createElement('textarea');
             el.value = text;
+            el.setAttribute('readonly', '');
+            el.style.position = 'absolute';
+            el.style.left = '-9999px';
             document.body.appendChild(el);
             el.select();
             document.execCommand('copy');
