@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>がっきゅうのうたをつくろう</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;700&display=swap');
+        
+        body {
+            font-family: 'Zen Maru Gothic', sans-serif;
+            background-color: #f0f9ff;
+        }
+
+        .category-btn {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .category-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .word-card {
+            animation: fadeIn 0.4s ease-out forwards;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .word-card:hover {
+            transform: scale(1.05);
+            background-color: #fdf2f8;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .selected-word {
+            display: inline-block;
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0); }
+            100% { transform: scale(1); }
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #bae6fd;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-8">
+
+    <div class="max-w-5xl mx-auto">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-sky-600 mb-2">🎵 がっきゅうのテーマソング ことばえらび</h1>
+            <p class="text-gray-600">すきなカテゴリをえらんで、つかいたいことばをタップしてね！</p>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- 左側：カテゴリ選択 -->
+            <div class="lg:col-span-1 space-y-3">
+                <h2 class="text-xl font-bold text-sky-700 border-b-2 border-sky-200 pb-2 mb-4">📂 カテゴリ</h2>
+                <div id="category-container" class="grid grid-cols-2 lg:grid-cols-1 gap-2">
+                    <!-- JSで生成 -->
+                </div>
+            </div>
+
+            <!-- 中央：言葉の表示エリア -->
+            <div class="lg:col-span-2">
+                <div class="bg-white rounded-3xl p-6 shadow-sm min-h-[400px] border-4 border-sky-100 relative">
+                    <h2 id="current-category-title" class="text-2xl font-bold text-pink-500 mb-6 text-center">カテゴリをえらんでね</h2>
+                    <div id="words-display" class="flex flex-wrap gap-3 justify-center">
+                        <div class="text-gray-300 text-center mt-20">
+                            <p class="text-5xl mb-4">✨</p>
+                            <p>ひだりのボタンをおすと<br>ことばがでてくるよ</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 下部：選んだ言葉リスト -->
+                <div class="mt-8 bg-pink-50 rounded-3xl p-6 border-4 border-dashed border-pink-200">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-bold text-pink-600">🌟 えらんだことばリスト</h2>
+                        <button onclick="clearSelected()" class="text-xs bg-white px-3 py-1 rounded-full text-pink-400 hover:bg-pink-100 transition shadow-sm">ぜんぶけす</button>
+                    </div>
+                    <div id="selected-words-container" class="flex flex-wrap gap-2 min-h-[60px]">
+                        <p id="empty-msg" class="text-pink-300 italic">まだえらばれていないよ</p>
+                    </div>
+                    <div class="mt-4 flex justify-end">
+                        <button onclick="copyToClipboard()" class="bg-sky-500 hover:bg-sky-600 text-white px-6 py-2 rounded-full font-bold shadow-lg transition">
+                            📋 リストをコピーする
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-gray-800 text-white px-6 py-3 rounded-full opacity-0 transition-opacity pointer-events-none z-50">
+        コピーしたよ！せんせいにみせてね。
+    </div>
+
+    <script>
+        const wordData = {
+            "きずな・なかま": ["なかま", "ともだち", "しんゆう", "あいぼう", "ちーむ", "かぞく", "となりにいるひと"],
+            "かお・うごき": ["えがお", "すまいる", "にっこり", "ばくしょう", "ほほえみ", "てとて", "つなぐ", "むすぶ", "あくしゅ", "はいたっち", "かたをくむ"],
+            "つながり": ["ひとりじゃない", "みんないっしょ", "ささえあう", "みかた", "あいことば", "しんじる", "しんじあう", "きずな", "しんらい", "やくそく", "まっすぐ", "たすけあい", "きょうりょく", "こころのわ", "おたがいさま", "りれー", "ぱす"],
+            "げんき・ぱわー": ["げんきいっぱい", "ぱわふる", "えねるぎー", "ちゃーじ", "ばくはつ", "みなぎる", "ゆうき", "やるき", "ほんき", "こんじょう", "じょうねつ", "ちゃれんじゃー", "わらいごえ", "わっはっは", "にこにこ", "にぎやか", "おまつり", "がやがや"],
+            "ひかり・けしき": ["たいよう", "ひかり", "きらきら", "まぶしい", "あおぞら", "にじ", "ひだまり", "ぜんりょく", "100ぱーせんと", "ぜんりょくとうきゅう", "だしきる", "はしりぬける", "わくわく", "どきどき", "たのしもう", "ぼうけん", "あそびば", "こうきしん"],
+            "みらい・せいちょう": ["ゆめ", "きぼう", "みらい", "あした", "もくてきち", "ちへいせん", "ちず", "いっぽ", "あゆむ", "すすむ", "かいだん", "あしおと", "すたーとらいん", "じょそう", "はばたく", "つばさ", "そらへ", "たかく", "うちゅう", "とり", "とびだす"],
+            "どりょく・へんか": ["ちゃれんじ", "あきらめない", "なんどでも", "りべんじ", "かべをこわす", "せいちょう", "のびのび", "ぐんぐん", "しんか", "つぼみ", "かいか", "みのり", "せくらべ", "かがやく", "いちばん", "おんりーわん", "しゅやく", "だいやもんど", "ひかるあせ"],
+            "こせい・やさしさ": ["じぶんらしく", "ありのまま", "そのまま", "すなお", "じゆう", "ほこり", "じゅうにんといろ", "みんなちがってみんないい", "ぱずる", "まざりあう", "からふる", "いろどり", "やさしい", "ぬくもり", "おもいやり", "そっと", "つつむ", "よりそう"],
+            "かんしゃ・とくべつ": ["ありがとう", "かんしゃ", "さんきゅう", "ことばのぷれぜんと", "おかえし", "いばしょ", "ほーむ", "たからもの", "ひみつきち", "だいにのいえ", "あんしん", "かえるばしょ"],
+            "がっこうのようす": ["きせつ", "はる", "なつ", "あき", "ふゆ", "ちゃいむ", "ろうか", "まどのそと", "こくばん", "つくえ", "かえりみち"],
+            "かっこいいことば": ["いっちだんけつ", "せっさたくま", "いちごいちえ", "せいせいどうどう", "ひゃっかりょうらん", "うぃー・あー・わん", "びー・ゆあせるふ", "どぅー・あわ・べすと", "ねばー・ぎぶ・あっぷ", "すてっぷ・ばい・すてっぷ", "とぅげざー"]
+        };
+
+        const categoryContainer = document.getElementById('category-container');
+        const wordsDisplay = document.getElementById('words-display');
+        const currentTitle = document.getElementById('current-category-title');
+        const selectedWordsContainer = document.getElementById('selected-words-container');
+        const emptyMsg = document.getElementById('empty-msg');
+        
+        let selectedWords = [];
+
+        Object.keys(wordData).forEach(cat => {
+            const btn = document.createElement('button');
+            btn.className = 'category-btn bg-white border-2 border-sky-200 text-sky-700 px-4 py-3 rounded-2xl font-bold hover:bg-sky-50 text-left flex justify-between items-center';
+            btn.innerHTML = `<span>【${cat}】</span><span class="text-sky-300">▶</span>`;
+            btn.onclick = () => showWords(cat);
+            categoryContainer.appendChild(btn);
+        });
+
+        function showWords(category) {
+            currentTitle.innerText = `【${category}】のことば`;
+            wordsDisplay.innerHTML = '';
+            
+            wordData[category].forEach(word => {
+                const card = document.createElement('div');
+                card.className = 'word-card bg-sky-50 border-2 border-sky-100 px-5 py-2 rounded-full text-sky-800 font-medium shadow-sm';
+                card.innerText = word;
+                card.onclick = () => selectWord(word);
+                wordsDisplay.appendChild(card);
+            });
+
+            document.querySelectorAll('.category-btn').forEach(b => {
+                if (b.innerText.includes(category)) {
+                    b.classList.add('bg-sky-500', 'text-white', 'border-sky-500');
+                    b.classList.remove('bg-white', 'text-sky-700', 'border-sky-200');
+                } else {
+                    b.classList.remove('bg-sky-500', 'text-white', 'border-sky-500');
+                    b.classList.add('bg-white', 'text-sky-700', 'border-sky-200');
+                }
+            });
+        }
+
+        function selectWord(word) {
+            if (!selectedWords.includes(word)) {
+                selectedWords.push(word);
+                updateSelectedDisplay();
+            }
+        }
+
+        function updateSelectedDisplay() {
+            emptyMsg.style.display = selectedWords.length > 0 ? 'none' : 'block';
+            selectedWordsContainer.innerHTML = '';
+            selectedWords.forEach((word, index) => {
+                const tag = document.createElement('div');
+                tag.className = 'selected-word bg-white border-2 border-pink-300 text-pink-600 px-4 py-1 rounded-full flex items-center gap-2 shadow-sm font-bold';
+                tag.innerHTML = `${word} <button onclick="removeWord(${index})" class="text-pink-300 hover:text-pink-500 font-bold">×</button>`;
+                selectedWordsContainer.appendChild(tag);
+            });
+        }
+
+        window.removeWord = function(index) {
+            selectedWords.splice(index, 1);
+            updateSelectedDisplay();
+        };
+
+        window.clearSelected = function() {
+            if (selectedWords.length === 0) return;
+            selectedWords = [];
+            updateSelectedDisplay();
+        };
+
+        // コピー機能
+        window.copyToClipboard = async function() {
+            if (selectedWords.length === 0) {
+                showToast("まだことばをえらんでいないよ！");
+                return;
+            }
+            const text = selectedWords.join('、');
+            
+            // GitHubなどHTTPS環境では navigator.clipboard が推奨される
+            if (navigator.clipboard) {
+                try {
+                    await navigator.clipboard.writeText(text);
+                    showToast("コピーしたよ！せんせいにみせてね。");
+                } catch (err) {
+                    fallbackCopy(text);
+                }
+            } else {
+                fallbackCopy(text);
+            }
+        };
+
+        function fallbackCopy(text) {
+            const el = document.createElement('textarea');
+            el.value = text;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+            showToast("コピーしたよ！せんせいにみせてね。");
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.style.opacity = '1';
+            setTimeout(() => {
+                toast.style.opacity = '0';
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
